@@ -1,25 +1,27 @@
-import { HttpService } from '@nestjs/axios';
-import { Controller, Get, Post } from '@nestjs/common';
-import { map, Observable } from 'rxjs';
-import { Product } from 'src/dto/product';
+import { All, Body, Controller, HttpException, HttpStatus, Req } from '@nestjs/common';
+import axios from 'axios';
 
 @Controller('products')
 export class ProductController {
-
-    constructor(private httpService: HttpService) {}
-
-    @Get()
-    public getProductList(): any {
-        return this.httpService.get('https://1ztz8u9329.execute-api.eu-west-1.amazonaws.com/dev/products').pipe(map(response => response.data));
-    }
-
-    @Post()
-    public addProducts(products: Omit<Product, "id">[]): Observable<any> {
-        return this.httpService.post('https://1ztz8u9329.execute-api.eu-west-1.amazonaws.com/dev/products', products);
-    }
-
-    @Get()
-    public getProductsById(productId: number): Observable<any> {
-        return this.httpService.get(`https://1ztz8u9329.execute-api.eu-west-1.amazonaws.com/dev/products/${productId}`);
+    @All()
+    root(@Req() req: any, @Body() body): any {
+      const recipient = req.originalUrl.split('/')[1];
+      const recipientUrl = process.env[recipient];
+  
+      if (recipientUrl) {
+        const method = req.method.toLowerCase();
+        const data = Object.keys(body || {}).length > 0 && { data: body };
+  
+        const config = {
+          method,
+          url: recipientUrl,
+          ...data,
+        };
+  
+        return axios(config).then(({ data }) => data);
+  
+      } else {
+        throw new HttpException('Cannot process request', HttpStatus.BAD_GATEWAY);
+      }
     }
 }
