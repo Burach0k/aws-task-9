@@ -20,7 +20,7 @@ export class CartController {
         ...data,
       };
 
-      return axios(config).then(({ data }) => data);
+      return axios(config).then((data) => JSON.stringify(data));
 
     } else {
       throw new HttpException('Cannot process request', HttpStatus.BAD_GATEWAY);
