@@ -1,9 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
+import { All, Controller, HttpException, HttpStatus, Req } from '@nestjs/common';
 
 @Controller()
 export class AppController {
-    @Get()
-    public hello(): string {
-        return 'hi!'
+    @All()
+    root(@Req() req: any): any {
+      const recipient = req.originalUrl.split('/')[1];
+      const recipientUrl = process.env[recipient];
+  
+      if (!recipientUrl) {
+        throw new HttpException('Cannot process request', HttpStatus.BAD_GATEWAY);
+      }
     }
 }

@@ -15,10 +15,14 @@ export class CartController {
 
       const config = {
         method,
-        headers: { authorization: req.headers.authorization },
+        headers: {},
         url: recipientUrl,
         ...data,
       };
+
+      if (req.headers?.authorization) {
+        config.headers = { authorization: req.headers.authorization };
+      }
 
       return axios(config).then(({ data }) => data);
 
